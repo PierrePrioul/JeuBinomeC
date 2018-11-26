@@ -7,21 +7,13 @@
  * (MVC pattern, etc.)
  */
 
-import java.util.Map ;
-import java.util.HashMap ;
-import java.util.List ;
-import java.util.ArrayList ;
-
-import java.util.Random ;
-
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Container;
-import java.awt.event.*; 
-
-import javax.swing.JComponent;
-import javax.swing.JFrame;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 abstract class AbstractGridShape extends JComponent {
 
@@ -88,6 +80,7 @@ public class ExampleDisplay extends JFrame implements KeyListener {
   Rectangle myRectangle = new Rectangle(this) ;
   Container myContainer ;
   int numberOfSweets = 10 ;
+  ScoreKeeper scoreKeeper;
 
   /* gameMap contains the plan of the sweets to collect initialized to
    * null by default */
@@ -101,6 +94,7 @@ public class ExampleDisplay extends JFrame implements KeyListener {
     myContainer = getContentPane();
     myContainer.setPreferredSize(new Dimension(cellSize * (gridSize + 1), cellSize * (gridSize + 1) ));
     pack();
+    scoreKeeper = new ScoreKeeper(1);
     
     // adding the red circles for a bit of landscape
     Random rand = new Random();
@@ -129,7 +123,8 @@ public class ExampleDisplay extends JFrame implements KeyListener {
   /* needed to implement KeyListener */
   public void keyTyped   (KeyEvent ke){}
   public void keyReleased(KeyEvent ke){}
-  
+
+  // TODO : gérer plusieurs joueurs, actuellement seul un rectangle est supporté. A faire après la mise en place d'une architecture P2P minimum.
   /* where the real work happens: reacting to key being pressed */
   public void keyPressed (KeyEvent ke){ 
     int keyCode = ke.getKeyCode();
@@ -138,11 +133,16 @@ public class ExampleDisplay extends JFrame implements KeyListener {
     if (gameMap[myRectangle.x][myRectangle.y]!=null) {
       Circle c = gameMap[myRectangle.x][myRectangle.y];
       myContainer.remove(c);
+      scoreKeeper.AddOneToScore(0);
+
+      // System.out.println(scoreKeeper.getScoreList()[0]);
       pack();
       gameMap[myRectangle.x][myRectangle.y]=null;
       numberOfSweets--;
       if (numberOfSweets==0) {
-        System.out.println("You've won. Congratulations!");
+        int[] victor = scoreKeeper.DeclareVictor();
+
+        System.out.println("Congratulations player " + victor[0] + " ! You won with a score of " + victor[1] + " !");
         System.exit(0);
       }
       System.out.println("Only "+numberOfSweets+" sweet(s) remaining...");
