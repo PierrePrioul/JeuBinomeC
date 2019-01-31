@@ -3,7 +3,7 @@
  */
 public class ScoreKeeper {
 
-    int[] scoreList;
+    private int[] scoreList;
 
 ScoreKeeper(int numberOfPlayers){
     scoreList = new int[numberOfPlayers];
