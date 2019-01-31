@@ -1,4 +1,7 @@
-import org.jgroups.*;
+import org.jgroups.ChannelListener;
+import org.jgroups.JChannel;
+import org.jgroups.Message;
+import org.jgroups.ReceiverAdapter;
 import org.jgroups.stack.AddressGenerator;
 import org.jgroups.util.Util;
 
@@ -6,24 +9,17 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class GameExe extends ReceiverAdapter implements ChannelListener {
 
     protected String               cluster_name="game";
     private JChannel channel = null;
-    private int                    member_size=1;
     public ExampleDisplay                 exampleDisplay=null;
-    private final Random random = new Random(System.currentTimeMillis());
     boolean                        no_channel=false;
     boolean                        jmx;
     private boolean                use_state=false;
     private long                   state_timeout=5000;
-    private boolean                use_unicasts=false;
     protected boolean              send_own_state_on_merge=true;
-    private final List<Address> members = new ArrayList<Address>();
 
 
     public GameExe (String props, boolean no_channel, boolean jmx, boolean use_state, long state_timeout,
@@ -32,7 +28,6 @@ public class GameExe extends ReceiverAdapter implements ChannelListener {
         this.jmx=jmx;
         this.use_state=use_state;
         this.state_timeout=state_timeout;
-        this.use_unicasts=use_unicasts;
         if(no_channel)
             return;
 
