@@ -1,10 +1,11 @@
 import org.jgroups.*;
 import org.jgroups.stack.AddressGenerator;
-import org.jgroups.util.Base64;
 import org.jgroups.util.Util;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -23,6 +24,7 @@ public class GameExe extends ReceiverAdapter implements ChannelListener {
     private boolean                use_unicasts=false;
     protected boolean              send_own_state_on_merge=true;
     private final List<Address> members = new ArrayList<Address>();
+
 
     public GameExe (String props, boolean no_channel, boolean jmx, boolean use_state, long state_timeout,
                 boolean use_unicasts, String name, boolean send_own_state_on_merge, AddressGenerator gen) throws Exception {
@@ -73,19 +75,33 @@ public class GameExe extends ReceiverAdapter implements ChannelListener {
         }
     }
 
-    public void getState(Base64.OutputStream output) throws Exception {
-
-        Util.objectToStream(exampleDisplay.gameMap, new DataOutputStream(output));
+    public void getState(OutputStream output) throws Exception {
+    Circle[][] gMap = exampleDisplay.gameMap;
+        Util.objectToStream(gMap, new DataOutputStream(output));
 
     }
 
-    public void setState(Base64.InputStream input) throws Exception {
+    public void onSweetEaten(int i, int j) throws Exception {
+        int[] res = new int[2];
+        res[0] = i;
+        res[1] = j;
+
+        Message mes = new Message(null, res);
+        channel.send(mes);
+
+    }
+
+    public void setState(InputStream input) throws Exception {
         Circle[][] gMap;
         gMap=(Circle[][])Util.objectFromStream(new DataInputStream(input));
+        createExampleDisplayWithState(gMap);
+    }
+
+    public void createExampleDisplayWithState(Circle[][] gMap){
+
         exampleDisplay = new ExampleDisplay(0, gMap);
 
     }
-
 
         public void go() throws Exception {
         if(!no_channel && !use_state) {
@@ -101,11 +117,11 @@ public class GameExe extends ReceiverAdapter implements ChannelListener {
 
         if(!no_channel && use_state) {
             channel.connect(cluster_name, null, state_timeout);
-            channel.getState(null, 10000);
+            channel.getState(null, 5000);
         }
         exampleDisplay.setVisible(true);
-    }
 
+    }
 
     public static void main(String[] args) {
         String           props=null;
