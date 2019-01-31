@@ -71,7 +71,14 @@ public class GameExe extends ReceiverAdapter implements ChannelListener {
         int[] sweetLocation = (int[]) msg.getObject();
 
         if(null != exampleDisplay) {
+
             exampleDisplay.gameMap[sweetLocation[0]][sweetLocation[1]] = null;
+            Circle c = exampleDisplay.gameMap[exampleDisplay.myRectangle.x][exampleDisplay.myRectangle.y];
+            exampleDisplay.myContainer.remove(c);
+            exampleDisplay.numberOfSweets--;
+
+
+
         }
     }
 
@@ -81,7 +88,7 @@ public class GameExe extends ReceiverAdapter implements ChannelListener {
 
     }
 
-    public void onSweetEaten(int i, int j) throws Exception {
+    public void sendMessage(int i, int j) throws Exception {
         int[] res = new int[2];
         res[0] = i;
         res[1] = j;
@@ -120,6 +127,20 @@ public class GameExe extends ReceiverAdapter implements ChannelListener {
             channel.getState(null, 5000);
         }
         exampleDisplay.setVisible(true);
+
+            int sweets = exampleDisplay.numberOfSweets;
+
+            while(exampleDisplay.numberOfSweets > 0){
+
+            if(exampleDisplay.numberOfSweets < sweets){
+
+                sweets--;
+                sendMessage(exampleDisplay.myRectangle.x,exampleDisplay.myRectangle.y);
+
+            }
+
+
+        }
 
     }
 
